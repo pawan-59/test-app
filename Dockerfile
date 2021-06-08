@@ -4,7 +4,7 @@ RUN yum install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/lat
 
 COPY statsd.json /opt/aws/amazon-cloudwatch-agent/etc
 
-RUN amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/statsd.json
+RUN sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/statsd.json
 
 RUN yum install https://dl.k6.io/rpm/repo.rpm -y
 
