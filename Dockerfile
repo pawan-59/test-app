@@ -1,23 +1,15 @@
-FROM debian:latest as build
+FROM centos:latest
 
-RUN apt-get update &&  \
-    apt-get install -y ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN yum install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/latest/amazon-cloudwatch-agent.rpm -y
 
-RUN curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb && \
-    dpkg -i -E amazon-cloudwatch-agent.deb && \
-    rm -rf /tmp/* && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/config-downloader
+COPY statsd.json /opt/aws/amazon-cloudwatch-agent/etc
 
-FROM scratch
+RUN /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/statsd.json
 
-COPY --from=build /tmp /tmp
+RUN yum install https://dl.k6.io/rpm/repo.rpm -y
 
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+RUN yum install k6 -y
 
-COPY --from=build /opt/aws/amazon-cloudwatch-agent /opt/aws/amazon-cloudwatch-agent
+COPY script.js .
 
-ENV RUN_IN_CONTAINER="True"
-ENTRYPOINT ["/opt/aws/amazon-cloudwatch-agent/bin/start-amazon-cloudwatch-agent"]
+RUN K6_STATSD_ENABLE_TAGS=true k6 run --out statsd script.js
