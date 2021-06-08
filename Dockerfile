@@ -4,4 +4,6 @@ RUN yum install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/lat
 
 COPY statsd.json /opt/aws/amazon-cloudwatch-agent/etc
 
+COPY statsd .
+
 ENTRYPOINT ["/opt/aws/amazon-cloudwatch-agent/bin/start-amazon-cloudwatch-agent"]
