@@ -12,7 +12,5 @@ COPY common-config.toml /opt/aws/amazon-cloudwatch-agent/etc/
 
 COPY script.js .
 
-ENV RUN_IN_CONTAINER=True
-
 CMD /opt/aws/amazon-cloudwatch-agent/bin/start-amazon-cloudwatch-agent &&\
     K6_STATSD_ENABLE_TAGS=true k6 run --out statsd script.js
