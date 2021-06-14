@@ -1,16 +1,11 @@
 FROM centos:latest
 
-RUN yum install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/latest/amazon-cloudwatch-agent.rpm -y
+RUN yum install httpd -y
 
-RUN yum install https://dl.k6.io/rpm/repo.rpm -y
+RUN echo "Hello" > /var/www/html/index.html
 
-RUN yum install k6 -y
+ENTRYPOINT [ "/usr/sbin/httpd" ]
 
-COPY statsd.json /opt/aws/amazon-cloudwatch-agent/etc/
+EXPOSE 80
 
-COPY common-config.toml /opt/aws/amazon-cloudwatch-agent/etc/
-
-COPY script.js .
-
-CMD /opt/aws/amazon-cloudwatch-agent/bin/start-amazon-cloudwatch-agent &&\
-    K6_STATSD_ENABLE_TAGS=true k6 run --out statsd script.js
+CMD [ "-DFOREGROUND" ]
